@@ -155,6 +155,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
                                                        0.75f, 1,
                                                        1.0f, 0,
                                                        1.0f, 1}, 2);
+        mSkyboxTexture.use(GLES20.GL_TEXTURE0);
         mSkyboxProgram.setUniform("skybox", 0);
         
         mTerrainTexture = new Texture(BitmapFactory.decodeResource(resources, R.drawable.terrain));
@@ -164,19 +165,23 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         mMapTexture = new Texture(mapBitmap);
         mMapProgram = new Program(new VertexShader(resources.getString(R.string.mapVertexShader)),
                                   new FragmentShader(resources.getString(R.string.mapFragmentShader)));
+        mTerrainTexture.use(GLES20.GL_TEXTURE0);
         mMapProgram.setUniform("terrain", 0);
         mMapProgram.setUniform("terrainSize", 1.0f/40, 1.0f/40);//Should be20.0f/mTerrainTexture.getWidth(), 20.0f/mTerrainTexture.getHeight()); but getWidth() and getHeight() return 1200!
+        mMapTexture.use(GLES20.GL_TEXTURE1);
         mMapProgram.setUniform("map", 1);
         mMapProgram.setUniform("mapSize", 1.0f/mMapTexture.getWidth(), 1.0f/mMapTexture.getHeight());
-        
+ 
         mBananaTexture = new Texture(BitmapFactory.decodeResource(resources, R.drawable.banana));
         mPointProgram = new Program(new VertexShader(resources.getString(R.string.pointVertexShader)),
                                     new FragmentShader(resources.getString(R.string.pointFragmentShader)));
+        mBananaTexture.use(GLES20.GL_TEXTURE0);
         mPointProgram.setUniform("billboard", 0);
 
         mTuxTexture = new Texture(BitmapFactory.decodeResource(resources,  R.drawable.tux), GLES20.GL_REPEAT);
         mTuxProgram = new Program(new VertexShader(resources.getString(R.string.tuxVertexShader)),
                                   new FragmentShader(resources.getString(R.string.pointFragmentShader)));
+        mTuxTexture.use(GLES20.GL_TEXTURE0);
         mTuxProgram.setUniform("billboard", 0);
         
         GLES20.glEnable(GLES20.GL_BLEND);
