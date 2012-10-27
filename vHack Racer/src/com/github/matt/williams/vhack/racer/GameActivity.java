@@ -35,6 +35,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
     private float[] mProjectionMatrix = new float[16];
     private float[] mPVMatrix = new float[16];
     private AccelerometerController mAccelerometerController;
+    private AccelerometerEventReceiver mAccelerometerEventReceiver;
     private Program mSkyboxProgram;
     private Texture mSkyboxTexture;
     private Program mPointProgram;
@@ -61,6 +62,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
             UV_COORDS[coordIndex + 11] = 0;
         }
     }
+    private AccelerometerEventBroadcaster mAccelerometerEventBroadcaster;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,18 +76,34 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         mKarts.add(new Kart("Alice", 21.875f, -28.1f, (float)(Math.PI / 2)));
         mKarts.add(new Kart("Bob", 23.96f, -23.9f, (float)(Math.PI / 2)));
         mKarts.add(new Kart("Charlie", 26.04f, -28.1f, (float)(Math.PI / 2)));
-        mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), mKart);
+        if (getPackageManager().hasSystemFeature("com.google.android.tv")) {
+        	mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
+        } else {
+        	mAccelerometerEventBroadcaster = new AccelerometerEventBroadcaster();
+        	mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), mAccelerometerEventBroadcaster);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mAccelerometerController.start();
+        if (mAccelerometerController != null) {
+        	mAccelerometerEventBroadcaster.start();
+        	mAccelerometerController.start();
+        }
+        if (mAccelerometerEventReceiver != null) {
+        	mAccelerometerEventReceiver.start();
+        }
     }
     
     @Override
     public void onPause() {
-        mAccelerometerController.stop();
+        if (mAccelerometerController != null) {
+        	mAccelerometerController.stop();
+        }
+        if (mAccelerometerEventReceiver != null) {
+        	mAccelerometerEventReceiver.stop();
+        }
         super.onPause();
     }
     
