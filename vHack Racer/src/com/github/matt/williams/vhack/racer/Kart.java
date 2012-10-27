@@ -25,12 +25,12 @@ public class Kart implements ControllerCallback {
         mOrientation = startOrientation;
     }
     
-    public void control(float steering, float targetSpeed) {
+    public synchronized void control(float steering, float targetSpeed) {
         mSteering = steering;
         mTargetSpeed = targetSpeed;
     }
     
-    public void update(Map map) {
+    public synchronized void update(Map map) {
         mIsOnRough = false;
         if (mCollision > 0) {
             mCollision--;

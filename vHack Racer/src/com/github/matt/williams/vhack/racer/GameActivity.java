@@ -88,7 +88,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
     public void onResume() {
         super.onResume();
         if (mAccelerometerController != null) {
-        	mAccelerometerEventBroadcaster.start();
+            mAccelerometerEventBroadcaster.start();
         	mAccelerometerController.start();
         }
         if (mAccelerometerEventReceiver != null) {
