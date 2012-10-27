@@ -128,6 +128,11 @@ public class Kart implements ControllerCallback {
         return (mCollision > 0);
     }
     
+    public float getSpeed() {
+    	// pythagoras
+    	return (float) Math.sqrt((mVelocity[0] * mVelocity[0]) + (mVelocity[1] * mVelocity[1]));
+    }
+    
     public String getName() {
         return mName;
     }

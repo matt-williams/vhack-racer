@@ -14,9 +14,8 @@ public class HapticsController {
 
     Runnable mHapticsHandler = new Runnable() {
         public void run() {
-            Log.e(TAG, "Running HapticsHandler");
             if (mKart.isOnRough()) {
-                // ...
+            	mLauncher.play(Launcher.LONG_BUZZ_66);
             } else if (mKart.hasCollided()) {
                 try {
                     mLauncher.play(Launcher.IMPACT_RUBBER_100);
@@ -24,8 +23,14 @@ public class HapticsController {
                     Log.e(TAG, "Failed to play built-in effect, index " + Launcher.IMPACT_RUBBER_100 + ": " + e);
                 }
             } else {
-                // mKart.getSpeed();
-                // ...
+                float speed = mKart.getSpeed();
+                if (speed <= 0.1) {
+                	mLauncher.play(Launcher.ENGINE1_33);
+                } else if (speed <= 0.2) {
+                	mLauncher.play(Launcher.ENGINE1_66);
+                } else if (speed > 0.2) {
+                	mLauncher.play(Launcher.ENGINE1_100);
+                }
             }
             mHandler.postDelayed(mHapticsHandler, 100);
         }
@@ -41,12 +46,10 @@ public class HapticsController {
     }
     
     public void start() {
-        Log.e(TAG, "Starting HapticsHandler");
         mHandler.post(mHapticsHandler);
     }
     
     public void stop() {
-        Log.e(TAG, "Stopping HapticsHandler");
         mHandler.removeCallbacks(mHapticsHandler);
     }
 }
