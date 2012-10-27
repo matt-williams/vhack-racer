@@ -69,4 +69,11 @@ public class Map {
     public byte getTileProperty(float x, float y) {
         return TILE_PROPERTIES[getTile(x, y)];
     }    
+
+    public float[] getPosition(int tileX, int tileY) {
+        float[] position = new float[2];
+        position[0] = (1.0f - (tileX / mWidth)) * 200 / 3 - 100.0f / 3;
+        position[1] = (1.0f - (tileX / mWidth)) * 200 / 3 - 100.0f / 3;
+        return position;
+    }
 }

@@ -4,8 +4,8 @@ import android.util.Log;
 
 public class Kart implements ControllerCallback {
     private static final String TAG = "Kart";
-    private static final int JUMPING_PERIOD = 100;
-    private static final int COLLISION_PERIOD = 100;
+    private static final int JUMPING_PERIOD = 50;
+    private static final int COLLISION_PERIOD = 50;
     private float mOrientation;
     private float[] mPosition = new float[2];
     private float mSteering;
@@ -62,13 +62,9 @@ public class Kart implements ControllerCallback {
                 break;
 
             case Map.FINISH:
-                Log.e(TAG, "FINISH - cooldown = " + mLapCooldown);
                 if (mLapCooldown == 0) {
                     mLapCount++;
                     mLapCooldown = 1000;
-                }
-                if (mLapCount > 1) {
-                    throw new IllegalStateException("EEK");
                 }
                 break;
 

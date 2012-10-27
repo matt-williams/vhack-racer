@@ -66,16 +66,33 @@ void main() {
  -->
 
 <string name="pointVertexShader"><![CDATA[
-attribute vec4 xzuv;
+attribute vec2 xz;
+attribute vec2 uv;
 uniform mat4 matrix;
 uniform mat4 rotation;
 varying highp vec2 uv2;
 
 void main() {
-  highp vec4 offset = rotation * vec4((xzuv.z * 2.0) - 1.0, 1.0 - (xzuv.w * 2.0), 0, 0);
-  highp vec4 point = vec4(xzuv.x, 0, xzuv.y, 1) + offset;
+  highp vec4 offset = rotation * vec4((uv.x * 2.0) - 1.0, 1.0 - (uv.y * 2.0), 0, 0);
+  highp vec4 point = vec4(xz.x, 0, xz.y, 1) + offset;
   gl_Position = matrix * point;
-  uv2 = xzuv.zw;
+  uv2 = uv;
+}
+]]></string>
+
+<string name="tuxVertexShader"><![CDATA[
+attribute vec4 xzyr;
+attribute vec2 uv;
+uniform mat4 matrix;
+uniform mat4 rotation;
+uniform float orientation;
+varying highp vec2 uv2;
+
+void main() {
+  highp vec4 offset = rotation * vec4((uv.x * 2.0) - 1.0, 1.0 - (uv.y * 2.0), 0, 0);
+  highp vec4 point = vec4(xzyr.x, xzyr.z, xzyr.y, 1) + offset;
+  gl_Position = matrix * point;
+  uv2 = vec2((uv.x + mod(floor((orientation - xzyr.w) * 12.0 / 6.283) + 6.0, 12.0)) / 12.0, uv.y);
 }
 ]]></string>
  
@@ -84,7 +101,11 @@ varying highp vec2 uv2;
 uniform sampler2D billboard;
 
 void main() {
-  gl_FragColor = texture2D(billboard, uv2);
+  highp vec4 color = texture2D(billboard, uv2);
+  if (color.a == 0.0) {
+      discard;
+  }
+  gl_FragColor = color;
 }
 ]]></string>
 
