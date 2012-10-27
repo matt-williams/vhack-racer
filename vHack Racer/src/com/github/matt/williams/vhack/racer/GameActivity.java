@@ -32,7 +32,8 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
     private float[] mRotationMatrix = new float[16];
     private float[] mProjectionMatrix = new float[16];
     private float[] mPVMatrix = new float[16];
-    private AccelerometerController mAccelerometerController;
+    //private AccelerometerController mAccelerometerController;
+    private AccelerometerEventReceiver mAccelerometerEventReceiver;
     private Program mSkyboxProgram;
     private Texture mSkyboxTexture;
     private Program mPointProgram;
@@ -48,18 +49,21 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         mGLSurfaceView.setEGLContextClientVersion(2);
         mGLSurfaceView.setRenderer(this);
         mKart = new Kart("Matt", 19.8f, -25.0f, (float)(Math.PI / 2));
-        mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), mKart);
+        //mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), mKart);
+        mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mAccelerometerController.start();
+        //mAccelerometerController.start();
+        mAccelerometerEventReceiver.start();
     }
     
     @Override
     public void onPause() {
-        mAccelerometerController.stop();
+        //mAccelerometerController.stop();
+        mAccelerometerEventReceiver.stop();
         super.onPause();
     }
     
