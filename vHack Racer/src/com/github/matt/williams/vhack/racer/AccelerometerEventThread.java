@@ -12,6 +12,7 @@ public class AccelerometerEventThread extends Thread {
 
 	public AccelerometerEventThread(Socket socket, ControllerCallback controllerCallback) {
 		this.socket = socket;
+		mControllerCallback = controllerCallback;
 	}
 
 	public void run() {
