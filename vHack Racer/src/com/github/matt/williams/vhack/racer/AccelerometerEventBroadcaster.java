@@ -24,14 +24,14 @@ public class AccelerometerEventBroadcaster implements ControllerCallback {
     }
 
     public void control(float steering, float speed) {
-//        Log.i(TAG, "Passing on " + steering + ", " + speed);
+        Log.i(TAG, "Passing on " + steering + ", " + speed);
         Message msg = socketThread.mHandler.obtainMessage();
         Bundle bundle = new Bundle();
         bundle.putFloat(STEERING, steering);
         bundle.putFloat(SPEED, speed);
         msg.setData(bundle);
         socketThread.mHandler.sendMessage(msg);
-//        Log.i(TAG, "Passed on " + steering + ", " + speed);
+        Log.i(TAG, "Passed on " + steering + ", " + speed);
     }
 
     private class SocketThread extends Thread {
@@ -45,24 +45,24 @@ public class AccelerometerEventBroadcaster implements ControllerCallback {
             mHandler = new Handler() {
                 public void handleMessage(Message msg) {
                     Bundle bundle = msg.getData();
-//                    Log.i(TAG, "Sending " + Float.toString(bundle.getFloat(STEERING)) + ", " + Float.toString(bundle.getFloat(SPEED)));
+                    Log.i(TAG, "Sending " + Float.toString(bundle.getFloat(STEERING)) + ", " + Float.toString(bundle.getFloat(SPEED)));
                     mOut.println(Float.toString(bundle.getFloat(STEERING)) + ", " + Float.toString(bundle.getFloat(SPEED)));
                     mOut.flush();
-//                    Log.i(TAG, "Sent " + Float.toString(bundle.getFloat(STEERING)) + ", " + Float.toString(bundle.getFloat(SPEED)));
+                    Log.i(TAG, "Sent " + Float.toString(bundle.getFloat(STEERING)) + ", " + Float.toString(bundle.getFloat(SPEED)));
+                    msg.recycle();
                 }
             };
             
             try {
                 mEventSocket = new Socket("192.168.1.68", 10569);
                 mOut = new PrintWriter(mEventSocket.getOutputStream(), true);
+                Looper.loop();
             } catch (UnknownHostException e) {
                 System.err.println("Unknown host");
             } catch (IOException e) {
                 e.printStackTrace();
                 System.err.println("Couldn't get I/O for the connection.");
             }
-
-            Looper.loop();
 
             try {
                 if (mOut != null) {

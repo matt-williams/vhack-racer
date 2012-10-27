@@ -9,6 +9,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -24,6 +25,7 @@ import android.util.Log;
 public class GameActivity extends Activity implements GLSurfaceView.Renderer {
 
     private static final String TAG = "GameActivity";
+    public static final String EXTRA_CONNECT = "Connect";
     private GLSurfaceView mGLSurfaceView;
     private int mWidth;
     private int mHeight;
@@ -63,6 +65,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         }
     }
     private AccelerometerEventBroadcaster mAccelerometerEventBroadcaster;
+    private HapticsController mHapticsController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,30 +82,50 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         if (getPackageManager().hasSystemFeature("com.google.android.tv")) {
         	mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
         } else {
-        	mAccelerometerEventBroadcaster = new AccelerometerEventBroadcaster();
-        	mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), mAccelerometerEventBroadcaster);
+            Intent intent = getIntent();
+            ControllerCallback controllerCallback;
+            if ((intent != null) &&
+                (intent.getBooleanExtra(EXTRA_CONNECT, false))) {
+                mAccelerometerEventBroadcaster = new AccelerometerEventBroadcaster();
+                controllerCallback = mAccelerometerEventBroadcaster;
+            } else {
+                controllerCallback = mKart;
+                mHapticsController = new HapticsController(this, mKart);
+            }
+            mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), controllerCallback);
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (mAccelerometerController != null) {
+        if (mAccelerometerEventBroadcaster != null) {
             mAccelerometerEventBroadcaster.start();
+        }
+        if (mAccelerometerController != null) {
         	mAccelerometerController.start();
         }
         if (mAccelerometerEventReceiver != null) {
         	mAccelerometerEventReceiver.start();
         }
+        if (mHapticsController != null) {
+            mHapticsController.start();
+        }
     }
     
     @Override
     public void onPause() {
+        if (mAccelerometerEventBroadcaster != null) {
+            mAccelerometerEventBroadcaster.start();
+        }
         if (mAccelerometerController != null) {
         	mAccelerometerController.stop();
         }
         if (mAccelerometerEventReceiver != null) {
         	mAccelerometerEventReceiver.stop();
+        }
+        if (mHapticsController != null) {
+            mHapticsController.stop();
         }
         super.onPause();
     }

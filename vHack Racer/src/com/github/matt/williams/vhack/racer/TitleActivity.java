@@ -2,6 +2,7 @@ package com.github.matt.williams.vhack.racer;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,13 +21,22 @@ public class TitleActivity extends Activity {
         if (standalone != null) {
             standalone.setOnClickListener(new OnClickListener() {
                 public void onClick(View arg0) {
-                    // TODO Auto-generated method stub
-                    
+                    Intent intent = new Intent(TitleActivity.this, GameActivity.class);
+                    intent.putExtra(GameActivity.EXTRA_CONNECT, false);
+                    startActivity(intent);
                 }
             });
         }
         Button connect = (Button)findViewById(R.id.connect);
-        
+        if (connect != null) {
+            connect.setOnClickListener(new OnClickListener() {
+                public void onClick(View arg0) {
+                    Intent intent = new Intent(TitleActivity.this, GameActivity.class);
+                    intent.putExtra(GameActivity.EXTRA_CONNECT, true);
+                    startActivity(intent);
+                }
+            });
+        }
     }
 /*
     @Override
