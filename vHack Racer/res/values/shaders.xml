@@ -1,0 +1,28 @@
+<resources>
+
+<string name="vertexShader"><![CDATA[
+attribute vec2 xz;
+attribute vec2 uv;
+uniform mat4 matrix;
+varying highp vec2 uv2;
+
+void main() {
+  gl_Position = matrix * vec4(xz.x, -1, xz.y, 1);
+  uv2 = uv;
+}
+]]></string>
+
+<string name="fragmentShader"><![CDATA[
+varying highp vec2 uv2;
+uniform sampler2D terrain;
+uniform sampler2D map;
+uniform highp vec2 terrainSize;
+uniform highp vec2 mapSize;
+
+void main() {
+  highp vec2 tile = texture2D(map, uv2).xy * 255.0;
+  gl_FragColor = texture2D(terrain, (tile + mod(uv2 / mapSize, 1.0)) * terrainSize);
+}
+]]></string>
+
+</resources>
