@@ -40,6 +40,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
     private Texture mBillboardTexture;
     private Kart mKart;
     private Map mMap;
+    private AccelerometerEventBroadcaster mAccelerometerEventBroadcaster;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,21 +53,31 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         if (getPackageManager().hasSystemFeature("com.google.android.tv")) {
         	mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
         } else {
-        	mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), new AccelerometerEventBroadcaster());
+        	mAccelerometerEventBroadcaster = new AccelerometerEventBroadcaster();
+        	mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), mAccelerometerEventBroadcaster);
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mAccelerometerController.start();
-        mAccelerometerEventReceiver.start();
+        if (mAccelerometerController != null) {
+        	mAccelerometerEventBroadcaster.start();
+        	mAccelerometerController.start();
+        }
+        if (mAccelerometerEventReceiver != null) {
+        	mAccelerometerEventReceiver.start();
+        }
     }
     
     @Override
     public void onPause() {
-        mAccelerometerController.stop();
-        mAccelerometerEventReceiver.stop();
+        if (mAccelerometerController != null) {
+        	mAccelerometerController.stop();
+        }
+        if (mAccelerometerEventReceiver != null) {
+        	mAccelerometerEventReceiver.stop();
+        }
         super.onPause();
     }
     
