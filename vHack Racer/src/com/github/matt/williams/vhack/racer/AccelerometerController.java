@@ -29,6 +29,8 @@ public class AccelerometerController implements SensorEventListener {
     }
 
     public void onSensorChanged(SensorEvent event) {
-        mControllerCallback.control((float)(event.values[1] * Math.PI / 200), -event.values[2] * 0.02f);
+        float steering = Math.max(-0.5f, Math.min(0.5f, (float)event.values[1])) * (float)(Math.PI / 80);
+        float speed = (0.2f - event.values[2]) * 0.02f;
+        mControllerCallback.control(steering, speed);
     }
 }

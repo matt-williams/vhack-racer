@@ -8,11 +8,16 @@ import android.opengl.GLUtils;
 
 public class Texture {
     private int mId;
+    private int mWidth;
+    private int mHeight;
 
     public Texture(Bitmap bitmap) {
         mId = generateTextureId();
+        mWidth = bitmap.getWidth();
+        mHeight = bitmap.getHeight();
         int oldId = pushTexture();
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+        bitmap.recycle();
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
@@ -56,5 +61,13 @@ public class Texture {
     private void popTexture(int oldId) {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, oldId);        
         Utils.checkErrors("glBindTexture");
+    }
+    
+    public int getWidth() {
+        return mWidth;
+    }
+    
+    public int getHeight() {
+        return mHeight;
     }
 }

@@ -3,6 +3,8 @@ package com.github.matt.williams.vhack.racer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.opengl.GLES20;
 
@@ -11,6 +13,7 @@ public class Program {
     private int mId;
     private VertexShader mVertexShader;
     private FragmentShader mFragmentShader;
+    private Map<String,ByteBuffer> mBuffers = new HashMap<String,ByteBuffer>();
     
     public Program(VertexShader vertexShader, FragmentShader fragmentShader) {
         mId = GLES20.glCreateProgram();
@@ -80,7 +83,7 @@ public class Program {
         int oldId = pushProgram();
         int handle = GLES20.glGetAttribLocation(mId, name);
         Utils.checkErrors("glGetAttribLocation");
-        GLES20.glVertexAttribPointer(handle, valueSize, GLES20.GL_FLOAT, false, valueSize * BYTES_PER_FLOAT, wrap(values));
+        GLES20.glVertexAttribPointer(handle, valueSize, GLES20.GL_FLOAT, false, valueSize * BYTES_PER_FLOAT, wrap(name, values));
         Utils.checkErrors("glVertexAttribPointer");
         GLES20.glEnableVertexAttribArray(handle);
         Utils.checkErrors("glEnableVertexAttribArray");
@@ -122,8 +125,15 @@ public class Program {
         Utils.checkErrors("glUseProgram");
     }
     
-    private static FloatBuffer wrap(float[] data) {
-        FloatBuffer buffer = ByteBuffer.allocateDirect(data.length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder()).asFloatBuffer().put(data);
+    private FloatBuffer wrap(String name, float[] data) {
+        ByteBuffer byteBuffer = mBuffers.get(name);
+        if ((byteBuffer == null) ||
+            (byteBuffer.capacity() != data.length * BYTES_PER_FLOAT))
+        {
+            byteBuffer = ByteBuffer.allocateDirect(data.length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder());
+            mBuffers.put(name, byteBuffer);
+        }
+        FloatBuffer buffer = byteBuffer.asFloatBuffer().put(data);
         buffer.position(0);
         return buffer;
     }
