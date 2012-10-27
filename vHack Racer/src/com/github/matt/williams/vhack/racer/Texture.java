@@ -63,7 +63,9 @@ public class Texture {
     }
     
     private void popTexture(int oldId) {
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, oldId);        
+        if (oldId != 0) {
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, oldId);        
+        }
         Utils.checkErrors("glBindTexture");
     }
     
