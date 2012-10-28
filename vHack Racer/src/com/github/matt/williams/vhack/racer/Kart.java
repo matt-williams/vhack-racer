@@ -53,7 +53,7 @@ public class Kart implements ControllerCallback {
 
             case Map.ROUGH:
                 mIsOnRough = true;
-                effectiveSteering += (Math.random() - 0.5) * effectiveTargetSpeed / 4;
+                effectiveSteering += (Math.random() - 0.5) * Math.PI / 320;
                 effectiveTargetSpeed *= 0.7;
                 break;
 
@@ -135,5 +135,9 @@ public class Kart implements ControllerCallback {
     
     public String getName() {
         return mName;
+    }
+    
+    public int getLapCount() {
+    	return mLapCount;
     }
 }

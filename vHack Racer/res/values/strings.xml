@@ -4,5 +4,6 @@
     <string name="title">vHack Racer!</string>
     <string name="wait_connect">Waiting for players</string>
     <string name="push_start">Push Start</string>
+    <string name="finished">Finished!</string>
     
 </resources>

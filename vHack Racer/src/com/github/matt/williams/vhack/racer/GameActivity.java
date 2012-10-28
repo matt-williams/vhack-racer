@@ -23,7 +23,11 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 public class GameActivity extends Activity implements GLSurfaceView.Renderer, ConnectionCallback {
 
@@ -51,6 +55,14 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     private Texture mTuxTexture;
     private Program mTuxProgram;
     private static final float[] UV_COORDS = new float[768];
+    private TextView mLapBoard;
+    private int mCurrentLap;
+    private Handler mLapHandler = new Handler();
+    private boolean mLapsFinished;
+    private TextView mFinished;
+    private int totalLapTime;
+    private Handler mTimerHandler = new Handler();
+    private TextView mTimer;
     static {
         for (int coordIndex = 0; coordIndex < UV_COORDS.length; coordIndex += 12) {
             UV_COORDS[coordIndex] = 0;
@@ -76,6 +88,11 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        
+        mLapBoard = (TextView)findViewById(R.id.lapBoard);
+        mFinished = (TextView)findViewById(R.id.finished);
+        mTimer = (TextView)findViewById(R.id.timer);
+        
         mGLSurfaceView = (GLSurfaceView)findViewById(R.id.glsurfaceview);
         mGLSurfaceView.setEGLContextClientVersion(2);
         mGLSurfaceView.setRenderer(this);
@@ -109,6 +126,10 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
             }
             mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), controllerCallback);
         }
+        
+        // lap counter
+        mCurrentLap = mKart.getLapCount();
+        mLapHandler.postDelayed(mLapBoardHandler, 1000);
     }
 
     @Override
@@ -129,6 +150,8 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         if (mSoundController != null) {
         	mSoundController.start();
         }
+        
+        mTimerHandler.post(mLapTimerHandler);
     }
     
     @Override
@@ -228,9 +251,31 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     }
 
     public void onDrawFrame(GL10 gl) {
+<<<<<<< HEAD
         for (Kart kart : mKarts) {
             kart.update(mMap);
         }
+=======
+        mKart.update(mMap);
+        
+        // check if the user has completed a lap
+        int currentLap = mKart.getLapCount();
+        if (currentLap > mCurrentLap  && currentLap <= Map.TOTAL_LAPS) {
+        	mCurrentLap = currentLap;
+        	
+        	if (currentLap == Map.TOTAL_LAPS) {
+        		mLapsFinished = true;
+        	}
+        	
+            mLapHandler.post(mLapBoardHandler);
+        }
+        // if we are finished the course we don't need to update the lap counter
+        if (currentLap > Map.TOTAL_LAPS) {
+        	mLapHandler.removeCallbacks(mLapBoardHandler);
+        	mTimerHandler.removeCallbacks(mLapTimerHandler);
+        }
+        
+>>>>>>> dc2d6893f2ab592b8ef204cbd4dc740b564dcb90
         float orientation = mKart.getOrientation();
         float position[] = mKart.getPosition();
         
@@ -345,4 +390,35 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     public void onConnectionFailed() {
         //@@TODO: Implement me.
     }
+
+    Runnable mLapBoardHandler = new Runnable() {
+        public void run() {
+        	mLapBoard.setText(mCurrentLap + "/" + Map.TOTAL_LAPS);
+        	if (mLapsFinished) {
+        		mFinished.setVisibility(View.VISIBLE);
+        	}
+        }
+    };
+
+    Runnable mLapTimerHandler = new Runnable() {
+        public void run() {
+        	// update the time passed
+        	totalLapTime++;
+        	
+        	int minutes = (int) Math.floor(totalLapTime / 60);
+        	int seconds = totalLapTime % 60;
+        	// format 0-9 seconds to 0:09 etc
+        	String padding = "";
+        	if (seconds < 10) {
+        		padding = "0";
+        	}
+        	
+        	String totalTime = minutes + ":" + padding + seconds;
+        	
+        	mTimer.setText(totalTime);
+        	
+        	// update the timer every second
+        	mTimerHandler.postDelayed(mLapTimerHandler, 1000);
+        }
+    };
 }
