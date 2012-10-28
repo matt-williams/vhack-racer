@@ -24,9 +24,7 @@ public class SoundController {
 		
     	mSoundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
     	mSoundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-          @Override
-          public void onLoadComplete(SoundPool soundPool, int sampleId,
-              int status) {
+          public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
         	  // when the sound is fully loaded play it
         	  mSoundPool.play(mSoundID, 1, 1, 1, -1, 1f);
           }

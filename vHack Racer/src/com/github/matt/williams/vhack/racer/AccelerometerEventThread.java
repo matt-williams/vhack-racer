@@ -42,5 +42,6 @@ public class AccelerometerEventThread extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+        mControllerCallback.control(0.0f, 0.0f);
 	}
 }
