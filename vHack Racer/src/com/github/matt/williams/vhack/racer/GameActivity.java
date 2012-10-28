@@ -47,6 +47,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     private Texture mSkyboxTexture;
     private Program mPointProgram;
     private Texture mBananaTexture;
+    private Texture mTreasureTexture;
     private Kart mKart;
     private List<Kart> mKarts = new ArrayList<Kart>();
     private Map mMap;
@@ -93,6 +94,8 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     private SonyRemoteController mSonyRemoteController;
     private SoundController mSoundController;
     private boolean mRunLapTimer;
+    private List<Item> mBananas;
+    private List<Item> mTreasure;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,6 +129,27 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
             mKart = new Kart("Dave", 26.04f, -28.1f, (float)(Math.PI / 2));
             mKarts.add(mKart);
             
+            mBananas = new ArrayList<Item>();
+            mBananas.add(new Item(mMap, 58, 42));
+            mBananas.add(new Item(mMap, 45, 22));
+            mBananas.add(new Item(mMap, 43, 16));
+            mBananas.add(new Item(mMap, 25, 38));
+            mBananas.add(new Item(mMap, 29, 13));
+            mBananas.add(new Item(mMap, 32, 12));
+            mBananas.add(new Item(mMap, 5, 17));
+            mBananas.add(new Item(mMap, 7, 25));
+            mBananas.add(new Item(mMap, 5, 49));
+            
+            mTreasure = new ArrayList<Item>();
+            mTreasure.add(new Item(mMap, 55, 55));
+            mTreasure.add(new Item(mMap, 58, 58));
+            mTreasure.add(new Item(mMap, 52, 5));
+            mTreasure.add(new Item(mMap, 49, 7));
+            mTreasure.add(new Item(mMap, 22, 22));
+            mTreasure.add(new Item(mMap, 19, 19));
+            mTreasure.add(new Item(mMap, 8, 8));
+            mTreasure.add(new Item(mMap, 5, 5));
+            
             // lap counter
             mCurrentLap = mKart.getLapCount();
             mLapHandler.postDelayed(mLapBoardHandler, 1000);            
@@ -143,7 +167,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
                 // connected users
                 mEventReceiver = new ItemController(this);
             }
-            mSoundController = new SoundController(this);
+            mSoundController = new SoundController(this, mKart);
         } else {
             ControllerCallback controllerCallback;
             if (connect) {
@@ -152,7 +176,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
             } else {
                 controllerCallback = mKart;
                 mHapticsController = new HapticsController(this, mKart);
-            	mSoundController = new SoundController(this);
+            	mSoundController = new SoundController(this, mKart);
                 
                 // for phones and tablets handle broadcast item events from the TV in
             	// multiplayer mode and show the user which item they collected or
@@ -221,7 +245,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     
     public void onSurfaceCreated(GL10 gl, EGLConfig cfg) {
         Resources resources = getResources();
-        mSkyboxTexture = new Texture(BitmapFactory.decodeResource(resources,  R.drawable.skybox));
+        mSkyboxTexture = new Texture(BitmapFactory.decodeResource(resources, R.drawable.skybox));
         mSkyboxProgram = new Program(new VertexShader(resources.getString(R.string.skyboxVertexShader)),
                                      new FragmentShader(resources.getString(R.string.skyboxFragmentShader)));
         mSkyboxProgram.setVertexAttrib("xyz", new float[] {-50, 90, -50,
@@ -261,6 +285,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         mMapProgram.setUniform("mapSize", 1.0f/mMapTexture.getWidth(), 1.0f/mMapTexture.getHeight());
  
         mBananaTexture = new Texture(BitmapFactory.decodeResource(resources, R.drawable.banana));
+        mTreasureTexture = new Texture(BitmapFactory.decodeResource(resources, R.drawable.chest));
         mPointProgram = new Program(new VertexShader(resources.getString(R.string.pointVertexShader)),
                                     new FragmentShader(resources.getString(R.string.pointFragmentShader)));
         mBananaTexture.use(GLES20.GL_TEXTURE0);
@@ -298,6 +323,40 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     public void onDrawFrame(GL10 gl) {
         for (Kart kart : mKarts) {
             kart.update(mMap);
+            Item itemToDelete = null;
+            for (Item item : mBananas) {
+                if (kart.hit(item.getPosition())) {
+                    kart.hitBanana();
+                    itemToDelete = item;
+                    break;
+                }
+            }
+            if (itemToDelete != null) {
+                mBananas.remove(itemToDelete);
+            }
+            itemToDelete = null;
+            for (Item item : mTreasure) {
+                if (kart.hit(item.getPosition())) {
+                    kart.gotTreasure();
+                    itemToDelete = item;
+                    break;
+                }
+            }
+            if (itemToDelete != null) {
+                mTreasure.remove(itemToDelete);
+            }
+        }
+        for (int kart1Index = 0; kart1Index < mKarts.size() - 1; kart1Index++) {
+            Kart kart1 = mKarts.get(kart1Index);
+            for (int kart2Index = kart1Index + 1; kart2Index < mKarts.size(); kart2Index++) {
+                Kart kart2 = mKarts.get(kart2Index);
+                if (kart1.hit(kart2.getPosition())) {
+                    float[] kart1Position = kart1.getPosition();
+                    float[] kart2Position = kart2.getPosition();
+                    kart1.bumped(kart1Position[0] - kart2Position[0], kart1Position[1] - kart2Position[1]);
+                    kart2.bumped(kart2Position[0] - kart1Position[0], kart2Position[1] - kart1Position[1]);
+                }
+            }
         }
         
         // check if the user has completed a lap
@@ -376,27 +435,46 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
         Utils.checkErrors("glDrawArrays");
         
-                GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-                GLES20.glDepthMask(true);
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDepthMask(true);
         mBananaTexture.use(GLES20.GL_TEXTURE0);
         Matrix.setIdentityM(mRotationMatrix, 0);
         Matrix.rotateM(mRotationMatrix, 0, (float)(-orientation * 180 / Math.PI), 0.0f, 1.0f, 0.0f);
         mPointProgram.setUniform("matrix", mPVMatrix);
         mPointProgram.setUniform("rotation", mRotationMatrix);
-        float[] points = new float[] {0, 30, 0, -30, 30, 0, -30, 0};
+        mPointProgram.setVertexAttrib("uv",  UV_COORDS,  2);
+        float[] points = new float[mBananas.size() * 2];
+        int pointIndex = 0;
+        for (Item banana : mBananas) {
+            points[pointIndex++] = -banana.getPosition()[0];
+            points[pointIndex++] = -banana.getPosition()[1];
+        }
         float[] vertices = pointsToVertices(points, 2);
         mPointProgram.setVertexAttrib("xz", vertices, 2);
-        mPointProgram.setVertexAttrib("uv",  UV_COORDS,  2);
+        mBananaTexture.use(GLES20.GL_TEXTURE0);
         mPointProgram.use();
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertices.length / 2);
         Utils.checkErrors("glDrawArrays");
 
+        points = new float[mTreasure.size() * 2];
+        pointIndex = 0;
+        for (Item treasure : mTreasure) {
+            points[pointIndex++] = -treasure.getPosition()[0];
+            points[pointIndex++] = -treasure.getPosition()[1];
+        }
+        vertices = pointsToVertices(points, 2);
+        mPointProgram.setVertexAttrib("xz", vertices, 2);
+        mTreasureTexture.use(GLES20.GL_TEXTURE0);
+        mPointProgram.use();
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertices.length / 2);
+        Utils.checkErrors("glDrawArrays");        
+        
         mTuxTexture.use(GLES20.GL_TEXTURE0);
         mTuxProgram.setUniform("matrix", mPVMatrix);
         mTuxProgram.setUniform("rotation", mRotationMatrix);
         mTuxProgram.setUniform("orientation", mKart.getOrientation());
         points = new float[4 * mKarts.size()];
-        int pointIndex = 0;
+        pointIndex = 0;
         for (Kart kart : mKarts) {
             points[pointIndex++] = -kart.getPosition()[0];
             points[pointIndex++] = -kart.getPosition()[1];

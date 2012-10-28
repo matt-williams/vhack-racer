@@ -6,6 +6,8 @@ public class Kart implements ControllerCallback {
     private static final String TAG = "Kart";
     private static final int JUMPING_PERIOD = 50;
     private static final int COLLISION_PERIOD = 50;
+    private static final int SLIPPY_DURATION = 50;
+    private static final float HIT_RADIUS = 1.5f;
     private float mOrientation;
     private float[] mPosition = new float[2];
     private float mSteering;
@@ -17,6 +19,8 @@ public class Kart implements ControllerCallback {
     private int mLapCount;
     private int mLapCooldown;
     private String mName;
+    private int mSlippy;
+    private boolean mGotTreasure;
     
     public Kart(String name, float startX, float startY, float startOrientation) {
         mName = name;
@@ -34,6 +38,9 @@ public class Kart implements ControllerCallback {
         mIsOnRough = false;
         if (mCollision > 0) {
             mCollision--;
+        }
+        if (mSlippy > 0) {
+            mSlippy--;
         }
         if (mLapCooldown > 0) {
             mLapCooldown--;
@@ -76,9 +83,11 @@ public class Kart implements ControllerCallback {
         } else {
             mJumping--;
         }
-        
-        mVelocity[0] = (float)(mVelocity[0] * 0.5 + Math.sin(mOrientation) * effectiveTargetSpeed);
-        mVelocity[1] = (float)(mVelocity[1] * 0.5 - Math.cos(mOrientation) * effectiveTargetSpeed);
+
+        if (mSlippy == 0) {
+            mVelocity[0] = (float)(mVelocity[0] * 0.5 + Math.sin(mOrientation) * effectiveTargetSpeed);
+            mVelocity[1] = (float)(mVelocity[1] * 0.5 - Math.cos(mOrientation) * effectiveTargetSpeed);
+        }
         if ((!driveToIfPossible(map, mVelocity[0], mVelocity[1])) &&
             (!driveToIfPossible(map, mVelocity[0] * 0.5f, mVelocity[1] * 0.5f)) &&
             (!driveToIfPossible(map, mVelocity[0] * 0.5f + mVelocity[1] * 0.5f, mVelocity[1] * 0.5f - mVelocity[0] * 0.5f)) &&
@@ -128,6 +137,16 @@ public class Kart implements ControllerCallback {
         return (mCollision > 0);
     }
     
+    public boolean isSlipping() {
+        return (mSlippy > 0);
+    }
+    
+    public boolean gotTreasureRecently() {
+        boolean gotTreasure = mGotTreasure;
+        mGotTreasure = false;
+        return gotTreasure;
+    }
+    
     public float getSpeed() {
     	// pythagoras
     	return (float) Math.sqrt((mVelocity[0] * mVelocity[0]) + (mVelocity[1] * mVelocity[1]));
@@ -139,5 +158,26 @@ public class Kart implements ControllerCallback {
     
     public int getLapCount() {
     	return mLapCount;
+    }
+
+    public boolean hit(float[] position) {
+        float deltaX = mPosition[0] - position[0];
+        float deltaY = mPosition[1] - position[1];
+        return (Math.sqrt((deltaX * deltaX) + (deltaY * deltaY)) < HIT_RADIUS);
+    }
+
+    public void hitBanana() {
+        mSlippy = SLIPPY_DURATION;
+    }
+
+    public void gotTreasure() {
+        mGotTreasure = true;
+    }
+
+    public void bumped(float x, float y) {
+        float modulus = (float)Math.sqrt((x * x) + (y * y));
+        mVelocity[0] += x / modulus * 0.2f;
+        mVelocity[1] += y / modulus * 0.2f;
+        mCollision = COLLISION_PERIOD;
     }
 }
