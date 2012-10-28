@@ -31,8 +31,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class GameActivity extends Activity implements GLSurfaceView.Renderer,
-		ConnectionCallback {
+public class GameActivity extends Activity implements GLSurfaceView.Renderer, ConnectionCallback {
 
 	private static final String TAG = "GameActivity";
 	public static final String EXTRA_CONNECT = "Connect";
@@ -97,10 +96,10 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer,
 	private SonyRemoteController mSonyRemoteController;
 	private SoundController mSoundController;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_game);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_game);
 
 		mLapBoard = (TextView) findViewById(R.id.lapBoard);
 		mFinished = (TextView) findViewById(R.id.finished);
@@ -179,7 +178,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer,
 		mUserName = mUserHighScore.getString(NAME_PREF, "Matt");
 	}
 
-	@Override
+    @Override
 	public void onPause() {
 		if (mAccelerometerEventBroadcaster != null) {
 			mAccelerometerEventBroadcaster.shutdown();
