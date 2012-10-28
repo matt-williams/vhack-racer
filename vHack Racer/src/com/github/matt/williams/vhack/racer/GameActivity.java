@@ -251,12 +251,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     }
 
     public void onDrawFrame(GL10 gl) {
-<<<<<<< HEAD
         for (Kart kart : mKarts) {
             kart.update(mMap);
         }
-=======
-        mKart.update(mMap);
         
         // check if the user has completed a lap
         int currentLap = mKart.getLapCount();
@@ -275,7 +272,6 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         	mTimerHandler.removeCallbacks(mLapTimerHandler);
         }
         
->>>>>>> dc2d6893f2ab592b8ef204cbd4dc740b564dcb90
         float orientation = mKart.getOrientation();
         float position[] = mKart.getPosition();
         
