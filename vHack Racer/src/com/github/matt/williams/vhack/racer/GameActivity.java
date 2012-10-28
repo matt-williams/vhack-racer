@@ -25,7 +25,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class GameActivity extends Activity implements GLSurfaceView.Renderer, ConnectionCallback {
+public class GameActivity extends Activity implements GLSurfaceView.Renderer, ConnectionCallback, EventReceiver, EventSender {
 
     private static final String TAG = "GameActivity";
     public static final String EXTRA_CONNECT = "Connect";
@@ -41,6 +41,8 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     private float[] mPVMatrix = new float[16];
     private AccelerometerController mAccelerometerController;
     private AccelerometerEventReceiver mAccelerometerEventReceiver;
+    private EventReceiver mEventReceiver;
+    private EventSender mEventSender;
     private Program mSkyboxProgram;
     private Texture mSkyboxTexture;
     private Program mPointProgram;
@@ -135,18 +137,27 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
                 mSonyRemoteController = new SonyRemoteController(this, mKart);
             } else {
             	recordScores = false;
-                mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
+                mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart, this);
+                
+                // playing multiplayer on TV so broadcast item and haptic events to all
+                // connected users
+                mEventReceiver = new ItemController(this);
             }
             mSoundController = new SoundController(this);
         } else {
             ControllerCallback controllerCallback;
             if (connect) {
-                mAccelerometerEventBroadcaster = new AccelerometerEventBroadcaster(this);
+                mAccelerometerEventBroadcaster = new AccelerometerEventBroadcaster(this, this);
                 controllerCallback = mAccelerometerEventBroadcaster;
             } else {
                 controllerCallback = mKart;
                 mHapticsController = new HapticsController(this, mKart);
             	mSoundController = new SoundController(this);
+                
+                // for phones and tablets handle broadcast item events from the TV in
+            	// multiplayer mode and show the user which item they collected or
+            	// what haptic event happened e.g. hit a wall
+                mEventReceiver = new ItemController(this);
             }
             mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), controllerCallback);
         }
@@ -498,4 +509,29 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
          finish();
        }	
      };
+
+	@Override
+	public void onItemCollected(String item) {
+		// Show user the item they have collected (phone only to keep hidden from opponents)
+		
+	}
+
+	@Override
+	public void onHapticEvent() {
+		// provide haptic feedback to the user (crashed into barrier, opponent etc)
+		
+	}
+
+	@Override
+	public void sendItemCollected(String item) {
+		// Send the user the item they collected
+		
+	}
+
+	@Override
+	public void sendHapticEvent() {
+		// Tell the user's device what event occurred so they can provide a collision vibration
+		// or rough terrain vibration etc
+		
+	}
 }

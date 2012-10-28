@@ -5,10 +5,12 @@ import java.net.ServerSocket;
 
 public class AccelerometerEventReceiver {
     private ControllerCallback mControllerCallback;
+    private EventSender mEventSender;
     private ReceiverThread mReceiverThread;
 
-    public AccelerometerEventReceiver(ControllerCallback controllerCallback) {
+    public AccelerometerEventReceiver(ControllerCallback controllerCallback, EventSender eventSender) {
         mControllerCallback = controllerCallback;
+        mEventSender = eventSender;
 		mReceiverThread = new ReceiverThread();
     }
 
@@ -33,7 +35,7 @@ public class AccelerometerEventReceiver {
 				serverSocket = new ServerSocket(10569);
 
 				while (listening)
-					new AccelerometerEventThread(serverSocket.accept(), mControllerCallback).start();
+					new AccelerometerEventThread(serverSocket.accept(), mControllerCallback, mEventSender).start();
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.err.println("Could not listen on port: 10569.");

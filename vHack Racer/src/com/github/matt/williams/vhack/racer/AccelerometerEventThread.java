@@ -9,9 +9,11 @@ import java.net.Socket;
 public class AccelerometerEventThread extends Thread {
 	private Socket socket = null;
     private ControllerCallback mControllerCallback;
+    private EventSender mEventSender;
 
-	public AccelerometerEventThread(Socket socket, ControllerCallback controllerCallback) {
+	public AccelerometerEventThread(Socket socket, ControllerCallback controllerCallback, EventSender eventSender) {
 		this.socket = socket;
+        mEventSender = eventSender;
 		mControllerCallback = controllerCallback;
 	}
 
@@ -34,6 +36,10 @@ public class AccelerometerEventThread extends Thread {
 					
 					mControllerCallback.control(steering, speed);
 				}
+				
+				out.println("");
+				
+				mEventSender.sendItemCollected("");
 			}
 			out.close();
 			in.close();

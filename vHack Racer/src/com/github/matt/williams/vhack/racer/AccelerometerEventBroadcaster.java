@@ -1,6 +1,8 @@
 package com.github.matt.williams.vhack.racer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -19,13 +21,16 @@ public class AccelerometerEventBroadcaster extends HandlerThread implements Cont
     private static final String STEERING = "steering";
     private Socket mEventSocket;
     private PrintWriter mOut;
+    private BufferedReader mIn;
     private Handler mHandler;
 
     private ConnectionCallback mConnectionCallback;
+    private EventReceiver mEventReceiver;
 
-    public AccelerometerEventBroadcaster(ConnectionCallback connectionCallback) {
+    public AccelerometerEventBroadcaster(ConnectionCallback connectionCallback, EventReceiver eventReceiver) {
         super("AccelerometerEventBroadcaster");
         mConnectionCallback = connectionCallback;
+        mEventReceiver = eventReceiver;
     }
 
     public void start() {
@@ -37,6 +42,14 @@ public class AccelerometerEventBroadcaster extends HandlerThread implements Cont
                     mOut.println(Float.toString(bundle.getFloat(STEERING)) + ", " + Float.toString(bundle.getFloat(SPEED)));
                     mOut.flush();
                 }
+                if (mIn != null) {
+                	try {
+						String item = mIn.readLine();
+						mEventReceiver.onItemCollected(item);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+                }
             }
         };        
     }
@@ -46,6 +59,9 @@ public class AccelerometerEventBroadcaster extends HandlerThread implements Cont
         try {
             if (mOut != null) {
                 mOut.close();
+            }
+            if (mIn != null) {
+            	mIn.close();
             }
             if (mEventSocket != null) {
                 mEventSocket.close();
@@ -61,6 +77,8 @@ public class AccelerometerEventBroadcaster extends HandlerThread implements Cont
         try {
             mEventSocket = new Socket("192.168.1.68", 10569);
             mOut = new PrintWriter(mEventSocket.getOutputStream(), true);
+			mIn = new BufferedReader(new InputStreamReader(
+					mEventSocket.getInputStream()));
             connected = true;
         } catch (UnknownHostException e) {
             System.err.println("Unknown host");
