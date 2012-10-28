@@ -30,16 +30,13 @@ public class AccelerometerEventBroadcaster extends HandlerThread implements Cont
 
     public void start() {
         super.start();
-//        Log.e(TAG, "Started");
         mHandler = new Handler(getLooper()) {
             public void handleMessage(Message msg) {
                 Bundle bundle = msg.getData();
-//                Log.i(TAG, "Sending " + Float.toString(bundle.getFloat(STEERING)) + ", " + Float.toString(bundle.getFloat(SPEED)));
                 if (mOut != null) {
                     mOut.println(Float.toString(bundle.getFloat(STEERING)) + ", " + Float.toString(bundle.getFloat(SPEED)));
                     mOut.flush();
                 }
-//                Log.i(TAG, "Sent " + Float.toString(bundle.getFloat(STEERING)) + ", " + Float.toString(bundle.getFloat(SPEED)));
             }
         };        
     }
@@ -60,6 +57,7 @@ public class AccelerometerEventBroadcaster extends HandlerThread implements Cont
 
     protected void onLooperPrepared() {
         boolean connected = false;
+        Log.i(TAG, "Connecting to TV");
         try {
             mEventSocket = new Socket("192.168.1.68", 10569);
             mOut = new PrintWriter(mEventSocket.getOutputStream(), true);
@@ -71,22 +69,22 @@ public class AccelerometerEventBroadcaster extends HandlerThread implements Cont
             System.err.println("Couldn't get I/O for the connection.");
         }
         if (connected) {
+            Log.i(TAG, "Connected to TV");
             mConnectionCallback.onConnected();
         } else {
+            Log.i(TAG, "Connection to TV failed");
             mConnectionCallback.onConnectionFailed();
         }
     }
     
     boolean called;
     public void control(float steering, float speed) {
-//        Log.i(TAG, "Passing on " + steering + ", " + speed);
         Message msg = mHandler.obtainMessage();
         Bundle bundle = new Bundle();
         bundle.putFloat(STEERING, steering);
         bundle.putFloat(SPEED, speed);
         msg.setData(bundle);
         mHandler.sendMessage(msg);
-//        Log.i(TAG, "Passed on " + steering + ", " + speed);
     }
 
     public void shutdown() {
