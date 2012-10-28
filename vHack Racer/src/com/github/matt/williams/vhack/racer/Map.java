@@ -73,15 +73,15 @@ public class Map {
 
     public float[] getPosition(int tileX, int tileY) {
         float[] position = new float[2];
-        position[0] = (1.0f - (tileX / mWidth)) * 200 / 3 - 100.0f / 3;
-        position[1] = (1.0f - (tileY / mHeight)) * 200 / 3 - 100.0f / 3;
+        position[0] = (1.0f - (1.0f * tileX / mWidth)) * 200 / 3 - 100.0f / 3;
+        position[1] = (1.0f - (1.0f * tileY / mHeight)) * 200 / 3 - 100.0f / 3;
         return position;
     }
     
     public int[] getPosition(float positionX, float positionY) {
         int[] tile = new int[2];
         tile[0] = (int)(Math.floor((1.0f - (positionX + 33.33f) / 66.67f) * mWidth));
-        tile[0] = (int)(Math.floor((1.0f - (positionY + 33.33f) / 66.67f) * mHeight));
+        tile[1] = (int)(Math.floor((1.0f - (positionY + 33.33f) / 66.67f) * mHeight));
         return tile;
     }
 }

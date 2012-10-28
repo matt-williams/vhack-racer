@@ -83,30 +83,43 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     private HapticsController mHapticsController;
     private SonyRemoteController mSonyRemoteController;
     private SoundController mSoundController;
+    private boolean mRunLapTimer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
-        
-        mLapBoard = (TextView)findViewById(R.id.lapBoard);
-        mFinished = (TextView)findViewById(R.id.finished);
-        mTimer = (TextView)findViewById(R.id.timer);
-        
-        mGLSurfaceView = (GLSurfaceView)findViewById(R.id.glsurfaceview);
-        mGLSurfaceView.setEGLContextClientVersion(2);
-        mGLSurfaceView.setRenderer(this);
-        Bitmap mapBitmap = Bitmap.createBitmap(MapData.DATA, 64, 64, Bitmap.Config.ARGB_8888);
-        mMap = new Map(mapBitmap);
-        mKart = new Kart("Matt", 19.8f, -23.9f, (float)(Math.PI / 2));
-        mKarts.add(mKart);
-        Kart kart = new Kart("Alice", 21.875f, -28.1f, (float)(Math.PI / 2));
-        new AIController(mMap, kart, kart).start(); // TODO: Do this properly, and stop it.
-        mKarts.add(kart);
-        mKarts.add(new Kart("Bob", 23.96f, -23.9f, (float)(Math.PI / 2)));
-        mKarts.add(new Kart("Charlie", 26.04f, -28.1f, (float)(Math.PI / 2)));
         Intent intent = getIntent();
         boolean connect = ((intent != null) && (intent.getBooleanExtra(EXTRA_CONNECT, false)));
+        if ((!getPackageManager().hasSystemFeature("com.google.android.tv")) && (connect)) {
+            setContentView(R.layout.activity_game_item);
+        } else {
+            setContentView(R.layout.activity_game);
+            mLapBoard = (TextView)findViewById(R.id.lapBoard);
+            mFinished = (TextView)findViewById(R.id.finished);
+            mTimer = (TextView)findViewById(R.id.timer);
+            mGLSurfaceView = (GLSurfaceView)findViewById(R.id.glsurfaceview);
+            mGLSurfaceView.setEGLContextClientVersion(2);
+            mGLSurfaceView.setRenderer(this);
+            Bitmap mapBitmap = Bitmap.createBitmap(MapData.DATA, 64, 64, Bitmap.Config.ARGB_8888);
+            mMap = new Map(mapBitmap);
+            Kart kart = new Kart("Alice", 19.8f, -23.9f, (float)(Math.PI / 2));
+            new AIController(mMap, kart, kart).start(); // TODO: Do this properly, and stop it.
+            mKarts.add(kart);
+            kart = new Kart("Bob", 21.875f, -28.1f, (float)(Math.PI / 2));
+            new AIController(mMap, kart, kart).start(); // TODO: Do this properly, and stop it.
+            mKarts.add(kart);
+            kart = new Kart("Charlie", 23.96f, -23.9f, (float)(Math.PI / 2));
+            new AIController(mMap, kart, kart).start(); // TODO: Do this properly, and stop it.
+            mKarts.add(kart);
+            mKart = new Kart("Dave", 26.04f, -28.1f, (float)(Math.PI / 2));
+            mKarts.add(mKart);
+            
+            // lap counter
+            mCurrentLap = mKart.getLapCount();
+            mLapHandler.postDelayed(mLapBoardHandler, 1000);            
+            mRunLapTimer = true;
+        }
+        
         if (getPackageManager().hasSystemFeature("com.google.android.tv")) {
             if (connect) {
                 mSonyRemoteController = new SonyRemoteController(this, mKart);
@@ -126,10 +139,6 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
             }
             mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), controllerCallback);
         }
-        
-        // lap counter
-        mCurrentLap = mKart.getLapCount();
-        mLapHandler.postDelayed(mLapBoardHandler, 1000);
     }
 
     @Override
@@ -153,8 +162,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         if (mSoundController != null) {
         	mSoundController.start();
         }
-        
-        mTimerHandler.post(mLapTimerHandler);
+        if (mRunLapTimer) {
+            mTimerHandler.post(mLapTimerHandler);            
+        }
     }
     
     @Override
