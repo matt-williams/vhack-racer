@@ -51,5 +51,7 @@ public class HapticsController {
     
     public void stop() {
         mHandler.removeCallbacks(mHapticsHandler);
+        // stop haptics when quiting
+        mLauncher.stop();
     }
 }

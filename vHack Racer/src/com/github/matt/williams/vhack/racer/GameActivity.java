@@ -66,6 +66,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
     }
     private AccelerometerEventBroadcaster mAccelerometerEventBroadcaster;
     private HapticsController mHapticsController;
+    private SoundController mSoundController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,6 +82,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         mKarts.add(new Kart("Charlie", 26.04f, -28.1f, (float)(Math.PI / 2)));
         if (getPackageManager().hasSystemFeature("com.google.android.tv")) {
         	mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
+        	mSoundController = new SoundController(this);
         } else {
             Intent intent = getIntent();
             ControllerCallback controllerCallback;
@@ -91,6 +93,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
             } else {
                 controllerCallback = mKart;
                 mHapticsController = new HapticsController(this, mKart);
+            	mSoundController = new SoundController(this);
             }
             mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), controllerCallback);
         }
@@ -111,6 +114,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         if (mHapticsController != null) {
             mHapticsController.start();
         }
+        if (mSoundController != null) {
+        	mSoundController.start();
+        }
     }
     
     @Override
@@ -126,6 +132,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         }
         if (mHapticsController != null) {
             mHapticsController.stop();
+        }
+        if (mSoundController != null) {
+        	mSoundController.stop();
         }
         super.onPause();
     }
