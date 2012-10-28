@@ -1,0 +1,28 @@
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# Local configuration file (sdk path, etc)
+local.properties
+.settings/
+
+# Eclipse project files
+.classpath
+.project
+
+# Libraries we can't distribute, so don't commit
+vHack Racer/libs/UHL.jar
+vHack Racer/libs/armeabi/
+vHack Racer/libs/com.sony.rdis.receiver-20111206.jar
+vHack Racer/libs/com.sony.rdis.receiver.utility-20111206.jar
+link-only-libs/
