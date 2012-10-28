@@ -60,6 +60,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     private Handler mLapHandler = new Handler();
     private boolean mLapsFinished;
     private TextView mFinished;
+    private int totalLapTime;
+    private Handler mTimerHandler = new Handler();
+    private TextView mTimer;
     static {
         for (int coordIndex = 0; coordIndex < UV_COORDS.length; coordIndex += 12) {
             UV_COORDS[coordIndex] = 0;
@@ -88,6 +91,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         
         mLapBoard = (TextView)findViewById(R.id.lapBoard);
         mFinished = (TextView)findViewById(R.id.finished);
+        mTimer = (TextView)findViewById(R.id.timer);
         
         mGLSurfaceView = (GLSurfaceView)findViewById(R.id.glsurfaceview);
         mGLSurfaceView.setEGLContextClientVersion(2);
@@ -121,7 +125,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         
         // lap counter
         mCurrentLap = mKart.getLapCount();
-        mLapHandler.post(mLapBoardHandler);
+        mLapHandler.postDelayed(mLapBoardHandler, 1000);
     }
 
     @Override
@@ -142,6 +146,8 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         if (mSoundController != null) {
         	mSoundController.start();
         }
+        
+        mTimerHandler.post(mLapTimerHandler);
     }
     
     @Override
@@ -258,6 +264,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         // if we are finished the course we don't need to update the lap counter
         if (currentLap > Map.TOTAL_LAPS) {
         	mLapHandler.removeCallbacks(mLapBoardHandler);
+        	mTimerHandler.removeCallbacks(mLapTimerHandler);
         }
         
         float orientation = mKart.getOrientation();
@@ -385,6 +392,28 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         	if (mLapsFinished) {
         		mFinished.setVisibility(View.VISIBLE);
         	}
+        }
+    };
+
+    Runnable mLapTimerHandler = new Runnable() {
+        public void run() {
+        	// update the time passed
+        	totalLapTime++;
+        	
+        	int minutes = (int) Math.floor(totalLapTime / 60);
+        	int seconds = totalLapTime % 60;
+        	// format 0-9 seconds to 0:09 etc
+        	String padding = "";
+        	if (seconds < 10) {
+        		padding = "0";
+        	}
+        	
+        	String totalTime = minutes + ":" + padding + seconds;
+        	
+        	mTimer.setText(totalTime);
+        	
+        	// update the timer every second
+        	mTimerHandler.postDelayed(mLapTimerHandler, 1000);
         }
     };
 }
