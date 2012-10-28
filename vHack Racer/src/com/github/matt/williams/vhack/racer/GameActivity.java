@@ -1,6 +1,5 @@
 package com.github.matt.williams.vhack.racer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,10 +10,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,9 +21,8 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class GameActivity extends Activity implements GLSurfaceView.Renderer, ConnectionCallback {
@@ -63,6 +59,17 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     private int totalLapTime;
     private Handler mTimerHandler = new Handler();
     private TextView mTimer;
+    private SharedPreferences mUserHighScore;
+    private SharedPreferences.Editor mUserHighScoreEditor;
+    private int mBestTime;
+    private static final String HIGH_SCORE_PREF = "high score";
+    private static final String NAME_PREF = "name";
+    private AlertDialog.Builder mAlert;
+    private EditText mHighScoreInput;
+  	private String mTotalLapTimeFormatted;
+  	private String mUserName;
+  	private Handler mGameEndHandler = new Handler();
+  	private boolean recordScores = true;
     static {
         for (int coordIndex = 0; coordIndex < UV_COORDS.length; coordIndex += 12) {
             UV_COORDS[coordIndex] = 0;
@@ -93,6 +100,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         mFinished = (TextView)findViewById(R.id.finished);
         mTimer = (TextView)findViewById(R.id.timer);
         
+    	mAlert = new AlertDialog.Builder(this);
+    	mHighScoreInput = new EditText(this);
+        
         mGLSurfaceView = (GLSurfaceView)findViewById(R.id.glsurfaceview);
         mGLSurfaceView.setEGLContextClientVersion(2);
         mGLSurfaceView.setRenderer(this);
@@ -111,6 +121,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
             if (connect) {
                 mSonyRemoteController = new SonyRemoteController(this, mKart);
             } else {
+            	recordScores = false;
                 mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
             }
             mSoundController = new SoundController(this);
@@ -130,6 +141,10 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         // lap counter
         mCurrentLap = mKart.getLapCount();
         mLapHandler.postDelayed(mLapBoardHandler, 1000);
+
+        // setup for the user's high score
+    	mUserHighScore = getSharedPreferences(HIGH_SCORE_PREF, Context.MODE_PRIVATE);
+    	 mUserHighScoreEditor = mUserHighScore.edit();
     }
 
     @Override
@@ -155,6 +170,8 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         }
         
         mTimerHandler.post(mLapTimerHandler);
+    	mBestTime = mUserHighScore.getInt(HIGH_SCORE_PREF, 0);
+    	mUserName = mUserHighScore.getString(NAME_PREF, "Matt");
     }
     
     @Override
@@ -394,33 +411,80 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     }
 
     Runnable mLapBoardHandler = new Runnable() {
-        public void run() {
-        	mLapBoard.setText(mCurrentLap + "/" + Map.TOTAL_LAPS);
-        	if (mLapsFinished) {
-        		mFinished.setVisibility(View.VISIBLE);
-        	}
-        }
-    };
+       public void run() {
+         mLapBoard.setText(mCurrentLap + "/" + Map.TOTAL_LAPS);
+         if (mLapsFinished) {
+           mFinished.setVisibility(View.VISIBLE);
 
-    Runnable mLapTimerHandler = new Runnable() {
-        public void run() {
-        	// update the time passed
-        	totalLapTime++;
-        	
-        	int minutes = (int) Math.floor(totalLapTime / 60);
-        	int seconds = totalLapTime % 60;
-        	// format 0-9 seconds to 0:09 etc
-        	String padding = "";
-        	if (seconds < 10) {
-        		padding = "0";
-        	}
-        	
-        	String totalTime = minutes + ":" + padding + seconds;
-        	
-        	mTimer.setText(totalTime);
-        	
-        	// update the timer every second
-        	mTimerHandler.postDelayed(mLapTimerHandler, 1000);
-        }
-    };
+           // if the user has beaten their previous best time notify them
+           // or if the user doesn't have a best score yet then ask them to
+           // record their score
+           if ((mBestTime > totalLapTime || mBestTime == 0) && recordScores) {
+
+             mAlert.setTitle("High Score");
+             mAlert.setMessage("Congratulations you have a new best time of "
+                 + mTotalLapTimeFormatted
+                 + ". Please eneter your name:");
+
+             // Set an EditText view to get user input
+             mAlert.setView(mHighScoreInput);
+             mHighScoreInput.append(mUserName);
+
+             mAlert.setPositiveButton("OK",
+                 new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog,
+                       int whichButton) {
+                     String value = mHighScoreInput.getText()
+                         .toString();
+
+                     mUserHighScoreEditor.putString(NAME_PREF,
+                         value);
+                     mUserHighScoreEditor.putInt(
+                         HIGH_SCORE_PREF, totalLapTime);
+                     mUserHighScoreEditor.commit();
+
+                     // Take the user back to the main menu
+                     mGameEndHandler.postDelayed(mEndOfGameHandler, 3000);
+                   }
+                 });
+             mAlert.show();
+           } else {
+             // The user didn't beat their best time so just take them back to the main menu
+             mGameEndHandler.postDelayed(mEndOfGameHandler, 3000);
+           }
+         }	
+       }
+     };
+
+     Runnable mLapTimerHandler = new Runnable() {
+       public void run() {
+         // if we haven't finished the course then record how long the user is taking
+         if (mCurrentLap < Map.TOTAL_LAPS) {
+           // update the time passed
+           totalLapTime++;
+
+           int minutes = (int) Math.floor(totalLapTime / 60);
+           int seconds = totalLapTime % 60;
+           // format 0-9 seconds to 0:09 etc
+           String padding = "";
+           if (seconds < 10) {
+             padding = "0";
+           }
+	
+           mTotalLapTimeFormatted = minutes + ":" + padding + seconds;
+
+           mTimer.setText(mTotalLapTimeFormatted);
+
+           // update the timer every second
+           mTimerHandler.postDelayed(mLapTimerHandler, 1000);
+         }	
+       }	
+     };
+	
+     Runnable mEndOfGameHandler = new Runnable() {
+    		 
+       public void run() {
+         finish();
+       }	
+     };
 }
