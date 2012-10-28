@@ -1,17 +1,16 @@
 package com.github.matt.williams.vhack.racer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import com.immersion.uhl.Launcher;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,7 +19,11 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 public class GameActivity extends Activity implements GLSurfaceView.Renderer {
 
@@ -48,6 +51,11 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
     private Texture mTuxTexture;
     private Program mTuxProgram;
     private static final float[] UV_COORDS = new float[768];
+    private TextView mLapBoard;
+    private int mCurrentLap;
+    private Handler mLapHandler = new Handler();
+    private boolean mLapsFinished;
+    private TextView mFinished;
     static {
         for (int coordIndex = 0; coordIndex < UV_COORDS.length; coordIndex += 12) {
             UV_COORDS[coordIndex] = 0;
@@ -72,6 +80,10 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        
+        mLapBoard = (TextView)findViewById(R.id.lapBoard);
+        mFinished = (TextView)findViewById(R.id.finished);
+        
         mGLSurfaceView = (GLSurfaceView)findViewById(R.id.glsurfaceview);
         mGLSurfaceView.setEGLContextClientVersion(2);
         mGLSurfaceView.setRenderer(this);
@@ -97,6 +109,10 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
             }
             mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), controllerCallback);
         }
+        
+        // lap counter
+        mCurrentLap = mKart.getLapCount();
+        mLapHandler.post(mLapBoardHandler);
     }
 
     @Override
@@ -218,6 +234,23 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
 
     public void onDrawFrame(GL10 gl) {
         mKart.update(mMap);
+        
+        // check if the user has completed a lap
+        int currentLap = mKart.getLapCount();
+        if (currentLap > mCurrentLap  && currentLap <= Map.TOTAL_LAPS) {
+        	mCurrentLap = currentLap;
+        	
+        	if (currentLap == Map.TOTAL_LAPS) {
+        		mLapsFinished = true;
+        	}
+        	
+            mLapHandler.post(mLapBoardHandler);
+        }
+        // if we are finished the course we don't need to update the lap counter
+        if (currentLap > Map.TOTAL_LAPS) {
+        	mLapHandler.removeCallbacks(mLapBoardHandler);
+        }
+        
         float orientation = mKart.getOrientation();
         float position[] = mKart.getPosition();
         
@@ -325,4 +358,13 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         }
         return vertices;
     }
+
+    Runnable mLapBoardHandler = new Runnable() {
+        public void run() {
+        	mLapBoard.setText(mCurrentLap + "/" + Map.TOTAL_LAPS);
+        	if (mLapsFinished) {
+        		mFinished.setVisibility(View.VISIBLE);
+        	}
+        }
+    };
 }

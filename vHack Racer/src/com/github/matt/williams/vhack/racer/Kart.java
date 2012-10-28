@@ -136,4 +136,8 @@ public class Kart implements ControllerCallback {
     public String getName() {
         return mName;
     }
+    
+    public int getLapCount() {
+    	return mLapCount;
+    }
 }

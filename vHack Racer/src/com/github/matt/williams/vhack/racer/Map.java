@@ -12,6 +12,7 @@ public class Map {
     private int[] mTiles;
 
     private static final int NUM_TILES = 40 * 40;
+    protected static final int TOTAL_LAPS = 3;
     public static final byte VOID = 0;
     public static final byte DRIVABLE = 1;
     public static final byte BLOCKING = 2;
