@@ -70,6 +70,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     private AccelerometerEventBroadcaster mAccelerometerEventBroadcaster;
     private HapticsController mHapticsController;
     private SonyRemoteController mSonyRemoteController;
+    private SoundController mSoundController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +92,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
             } else {
                 mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
             }
+            mSoundController = new SoundController(this);
         } else {
             ControllerCallback controllerCallback;
             if (connect) {
@@ -99,6 +101,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
             } else {
                 controllerCallback = mKart;
                 mHapticsController = new HapticsController(this, mKart);
+            	mSoundController = new SoundController(this);
             }
             mAccelerometerController = new AccelerometerController((SensorManager)getSystemService(Context.SENSOR_SERVICE), controllerCallback);
         }
@@ -119,6 +122,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         if (mHapticsController != null) {
             mHapticsController.start();
         }
+        if (mSoundController != null) {
+        	mSoundController.start();
+        }
     }
     
     @Override
@@ -134,6 +140,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         }
         if (mHapticsController != null) {
             mHapticsController.stop();
+        }
+        if (mSoundController != null) {
+        	mSoundController.stop();
         }
         super.onPause();
     }
