@@ -79,9 +79,13 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         mGLSurfaceView = (GLSurfaceView)findViewById(R.id.glsurfaceview);
         mGLSurfaceView.setEGLContextClientVersion(2);
         mGLSurfaceView.setRenderer(this);
+        Bitmap mapBitmap = Bitmap.createBitmap(MapData.DATA, 64, 64, Bitmap.Config.ARGB_8888);
+        mMap = new Map(mapBitmap);
         mKart = new Kart("Matt", 19.8f, -23.9f, (float)(Math.PI / 2));
         mKarts.add(mKart);
-        mKarts.add(new Kart("Alice", 21.875f, -28.1f, (float)(Math.PI / 2)));
+        Kart kart = new Kart("Alice", 21.875f, -28.1f, (float)(Math.PI / 2));
+        new AIController(mMap, kart, kart).start(); // TODO: Do this properly, and stop it.
+        mKarts.add(kart);
         mKarts.add(new Kart("Bob", 23.96f, -23.9f, (float)(Math.PI / 2)));
         mKarts.add(new Kart("Charlie", 26.04f, -28.1f, (float)(Math.PI / 2)));
         Intent intent = getIntent();
@@ -178,7 +182,6 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         mTerrainTexture = new Texture(BitmapFactory.decodeResource(resources, R.drawable.terrain));
 //        Bitmap mapBitmap = BitmapFactory.decodeStream(resources.openRawResource(R.raw.map));
         Bitmap mapBitmap = Bitmap.createBitmap(MapData.DATA, 64, 64, Bitmap.Config.ARGB_8888);
-        mMap = new Map(mapBitmap);
         mMapTexture = new Texture(mapBitmap);
         mMapProgram = new Program(new VertexShader(resources.getString(R.string.mapVertexShader)),
                                   new FragmentShader(resources.getString(R.string.mapFragmentShader)));
@@ -225,7 +228,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     }
 
     public void onDrawFrame(GL10 gl) {
-        mKart.update(mMap);
+        for (Kart kart : mKarts) {
+            kart.update(mMap);
+        }
         float orientation = mKart.getOrientation();
         float position[] = mKart.getPosition();
         
@@ -334,14 +339,10 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
     }
 
     public void onConnected() {
-        new AlertDialog.Builder(this).setTitle("TV Connected OK").setMessage("Yay!").create();
+        //@@TODO: Implement me.
     }
 
     public void onConnectionFailed() {
-        new AlertDialog.Builder(this).setTitle("TV Connection Failed").setMessage("Check your network connection and retry").setNeutralButton("OK", new OnClickListener() {
-            public void onClick(DialogInterface arg0, int arg1) {
-                finish();
-            }
-        }).create();
+        //@@TODO: Implement me.
     }
 }
