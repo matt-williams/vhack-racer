@@ -27,6 +27,8 @@
             android:name=".GameActivity"
             android:label="Race" android:configChanges="keyboardHidden|orientation" android:screenOrientation="landscape">
         </activity>
+        <uses-library android:name="com.sony.btv.remotesensor" android:required="false" />
+    	<uses-library android:name="com.google.android.tv" android:required="false" />
     </application>
 
 </manifest>

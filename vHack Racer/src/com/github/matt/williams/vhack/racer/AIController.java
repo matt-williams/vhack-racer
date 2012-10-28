@@ -59,7 +59,7 @@ public class AIController {
         int[] tile = mMap.getPosition(position[0], position[1]);
         int[] targetTile = TARGET_TILES[tile[0] + tile[1] * 64];
         if (targetTile != null) {
-            Log.e(TAG, "Currently at " + position[0] + ", " + position[1] + "(" + tile[0] + ", " + tile[1] + ") - looking to " + targetTile[0] + ", " + targetTile[1]);
+         //   Log.e(TAG, "Currently at " + position[0] + ", " + position[1] + "(" + tile[0] + ", " + tile[1] + ") - looking to " + targetTile[0] + ", " + targetTile[1]);
             float[] targetPosition = mMap.getPosition(targetTile[0], targetTile[1]);
             float[] deltaPosition = new float[] {targetPosition[0] - position[0], targetPosition[1] - position[1]};
             float distance = (float)Math.sqrt((deltaPosition[0] * deltaPosition[0]) + (deltaPosition[1] * deltaPosition[1]));

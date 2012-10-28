@@ -141,6 +141,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         if (mAccelerometerController != null) {
         	mAccelerometerController.start();
         }
+        if (mSonyRemoteController != null) {
+            mSonyRemoteController.start();
+        }
         if (mAccelerometerEventReceiver != null) {
         	mAccelerometerEventReceiver.start();
         }
@@ -161,6 +164,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer, Co
         }
         if (mAccelerometerController != null) {
         	mAccelerometerController.stop();
+        }
+        if (mSonyRemoteController != null) {
+            mSonyRemoteController.stop();
         }
         if (mAccelerometerEventReceiver != null) {
         	mAccelerometerEventReceiver.stop();
