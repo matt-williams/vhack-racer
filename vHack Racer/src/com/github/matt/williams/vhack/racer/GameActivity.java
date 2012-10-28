@@ -1,16 +1,20 @@
 package com.github.matt.williams.vhack.racer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import com.immersion.uhl.Launcher;
-
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,7 +29,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-public class GameActivity extends Activity implements GLSurfaceView.Renderer {
+public class GameActivity extends Activity implements GLSurfaceView.Renderer, ConnectionCallback {
 
     private static final String TAG = "GameActivity";
     public static final String EXTRA_CONNECT = "Connect";
@@ -74,6 +78,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
     }
     private AccelerometerEventBroadcaster mAccelerometerEventBroadcaster;
     private HapticsController mHapticsController;
+    private SonyRemoteController mSonyRemoteController;
     private SoundController mSoundController;
 
     @Override
@@ -92,15 +97,19 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         mKarts.add(new Kart("Alice", 21.875f, -28.1f, (float)(Math.PI / 2)));
         mKarts.add(new Kart("Bob", 23.96f, -23.9f, (float)(Math.PI / 2)));
         mKarts.add(new Kart("Charlie", 26.04f, -28.1f, (float)(Math.PI / 2)));
+        Intent intent = getIntent();
+        boolean connect = ((intent != null) && (intent.getBooleanExtra(EXTRA_CONNECT, false)));
         if (getPackageManager().hasSystemFeature("com.google.android.tv")) {
-        	mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
-        	mSoundController = new SoundController(this);
+            if (connect) {
+                mSonyRemoteController = new SonyRemoteController(this, mKart);
+            } else {
+                mAccelerometerEventReceiver = new AccelerometerEventReceiver(mKart);
+            }
+            mSoundController = new SoundController(this);
         } else {
-            Intent intent = getIntent();
             ControllerCallback controllerCallback;
-            if ((intent != null) &&
-                (intent.getBooleanExtra(EXTRA_CONNECT, false))) {
-                mAccelerometerEventBroadcaster = new AccelerometerEventBroadcaster();
+            if (connect) {
+                mAccelerometerEventBroadcaster = new AccelerometerEventBroadcaster(this);
                 controllerCallback = mAccelerometerEventBroadcaster;
             } else {
                 controllerCallback = mKart;
@@ -138,7 +147,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
     @Override
     public void onPause() {
         if (mAccelerometerEventBroadcaster != null) {
-            mAccelerometerEventBroadcaster.start();
+            mAccelerometerEventBroadcaster.shutdown();
         }
         if (mAccelerometerController != null) {
         	mAccelerometerController.stop();
@@ -330,7 +339,6 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
         mTuxProgram.setUniform("rotation", mRotationMatrix);
         mTuxProgram.setUniform("orientation", mKart.getOrientation());
         points = new float[4 * mKarts.size()];
-        Log.e(TAG, "Position (" + mKart.getPosition()[0] + ", " + mKart.getPosition()[1] + ")");
         int pointIndex = 0;
         for (Kart kart : mKarts) {
             points[pointIndex++] = -kart.getPosition()[0];
@@ -357,6 +365,18 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer {
             }
         }
         return vertices;
+    }
+
+    public void onConnected() {
+        new AlertDialog.Builder(this).setTitle("TV Connected OK").setMessage("Yay!").create();
+    }
+
+    public void onConnectionFailed() {
+        new AlertDialog.Builder(this).setTitle("TV Connection Failed").setMessage("Check your network connection and retry").setNeutralButton("OK", new OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                finish();
+            }
+        }).create();
     }
 
     Runnable mLapBoardHandler = new Runnable() {
