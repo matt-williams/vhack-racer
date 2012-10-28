@@ -16,7 +16,11 @@ public class TitleActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_title);
+        if (getPackageManager().hasSystemFeature("com.google.android.tv")) {
+            setContentView(R.layout.activity_title_tv);
+        } else {
+            setContentView(R.layout.activity_title);
+        }
         Button standalone = (Button)findViewById(R.id.standalone);
         if (standalone != null) {
             standalone.setOnClickListener(new OnClickListener() {
