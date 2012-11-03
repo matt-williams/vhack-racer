@@ -2,7 +2,6 @@ package com.github.matt.williams.vhack.racer.game;
 
 import com.github.matt.williams.vhack.racer.network.EventReceiver;
 
-
 public class ItemController implements EventReceiver {
 
     private EventReceiver mEventReceiver;

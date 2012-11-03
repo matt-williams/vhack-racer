@@ -1,7 +1,6 @@
 package com.github.matt.williams.vhack.racer.sound;
 
 import com.github.matt.williams.vhack.racer.R;
-import com.github.matt.williams.vhack.racer.R.raw;
 import com.github.matt.williams.vhack.racer.game.Kart;
 
 import android.content.Context;

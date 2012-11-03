@@ -1,5 +1,6 @@
 package com.github.matt.williams.vhack.racer.game;
 
+import android.util.FloatMath;
 import android.util.Log;
 
 public class Kart implements ControllerCallback {
@@ -110,8 +111,8 @@ public class Kart implements ControllerCallback {
         }
 
         if (mSlippy == 0) {
-            mVelocity[0] = (float)(mVelocity[0] * 0.5 + Math.sin(mOrientation) * effectiveTargetSpeed);
-            mVelocity[1] = (float)(mVelocity[1] * 0.5 - Math.cos(mOrientation) * effectiveTargetSpeed);
+            mVelocity[0] = mVelocity[0] * 0.5f + FloatMath.sin(mOrientation) * effectiveTargetSpeed;
+            mVelocity[1] = mVelocity[1] * 0.5f - FloatMath.cos(mOrientation) * effectiveTargetSpeed;
         }
         if ((!driveToIfPossible(map, mVelocity[0], mVelocity[1])) &&
             (!driveToIfPossible(map, mVelocity[0] * 0.5f, mVelocity[1] * 0.5f)) &&
@@ -153,7 +154,7 @@ public class Kart implements ControllerCallback {
         float position[] = new float[3];
         position[0] = mPosition[0];
         position[1] = mPosition[1];
-        position[2] = (float)Math.sin(mJumping * Math.PI / JUMPING_PERIOD);
+        position[2] = FloatMath.sin(mJumping * (float)Math.PI / JUMPING_PERIOD);
         return position;
     }
     
@@ -177,7 +178,7 @@ public class Kart implements ControllerCallback {
     
     public float getSpeed() {
     	// pythagoras
-    	return (float) Math.sqrt((mVelocity[0] * mVelocity[0]) + (mVelocity[1] * mVelocity[1]));
+    	return FloatMath.sqrt((mVelocity[0] * mVelocity[0]) + (mVelocity[1] * mVelocity[1]));
     }
     
     public String getName() {
@@ -191,7 +192,7 @@ public class Kart implements ControllerCallback {
     public boolean hit(float[] position) {
         float deltaX = mPosition[0] - position[0];
         float deltaY = mPosition[1] - position[1];
-        return (Math.sqrt((deltaX * deltaX) + (deltaY * deltaY)) < HIT_RADIUS);
+        return (FloatMath.sqrt((deltaX * deltaX) + (deltaY * deltaY)) < HIT_RADIUS);
     }
 
     public void hitBanana() {
@@ -203,7 +204,7 @@ public class Kart implements ControllerCallback {
     }
 
     public void bumped(float x, float y) {
-        float modulus = (float)Math.sqrt((x * x) + (y * y));
+        float modulus = FloatMath.sqrt((x * x) + (y * y));
         mVelocity[0] += x / modulus * 0.2f;
         mVelocity[1] += y / modulus * 0.2f;
         mCollision = COLLISION_PERIOD;

@@ -5,8 +5,6 @@ import java.util.List;
 
 import android.graphics.Bitmap;
 
-import com.github.matt.williams.vhack.racer.ai.AIController;
-
 public class RaceState {
 
     private Map mMap;

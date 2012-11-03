@@ -4,15 +4,10 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.Matrix;
 
 import com.github.matt.williams.vhack.racer.R;
-import com.github.matt.williams.vhack.racer.game.Item;
-import com.github.matt.williams.vhack.racer.game.Kart;
-import com.github.matt.williams.vhack.racer.game.Map;
 import com.github.matt.williams.vhack.racer.game.RaceState;
 
 public class Renderer implements GLSurfaceView.Renderer {

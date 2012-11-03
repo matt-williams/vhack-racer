@@ -1,19 +1,13 @@
 package com.github.matt.williams.vhack.racer.activity;
 
 import com.github.matt.williams.vhack.racer.R;
-import com.github.matt.williams.vhack.racer.R.id;
-import com.github.matt.williams.vhack.racer.R.layout;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.TextView;
-import android.support.v4.app.NavUtils;
 
 public class TitleActivity extends Activity {
 

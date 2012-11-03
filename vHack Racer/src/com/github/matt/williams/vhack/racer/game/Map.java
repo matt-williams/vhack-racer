@@ -1,8 +1,7 @@
 package com.github.matt.williams.vhack.racer.game;
 
-import java.util.Set;
-
 import android.graphics.Bitmap;
+import android.util.FloatMath;
 import android.util.Log;
 
 public class Map {
@@ -19,7 +18,7 @@ public class Map {
     public static final byte ROUGH = 3;
     public static final byte JUMP = 4;
     public static final byte FINISH = 5;
-    private static final byte[] TILE_PROPERTIES = new byte[40 * 40];
+    private static final byte[] TILE_PROPERTIES = new byte[NUM_TILES];
     static {
         final byte V = VOID;
         final byte D = DRIVABLE;
@@ -60,7 +59,7 @@ public class Map {
         int tile;
         if ((x >= 0) && (x < 1) && (y >= 0) && (y < 1))
         {
-            tile = mTiles[(int)(Math.floor(x * mWidth)) + ((int)Math.floor(y * mHeight)) * mWidth];
+            tile = mTiles[(int)(FloatMath.floor(x * mWidth)) + ((int)FloatMath.floor(y * mHeight)) * mWidth];
         } else {
             tile = 39 * 40 + 39;
         }
@@ -80,8 +79,8 @@ public class Map {
     
     public int[] getPosition(float positionX, float positionY) {
         int[] tile = new int[2];
-        tile[0] = (int)(Math.floor((1.0f - (positionX + 33.33f) / 66.67f) * mWidth));
-        tile[1] = (int)(Math.floor((1.0f - (positionY + 33.33f) / 66.67f) * mHeight));
+        tile[0] = (int)(FloatMath.floor((1.0f - (positionX + 33.33f) / 66.67f) * mWidth));
+        tile[1] = (int)(FloatMath.floor((1.0f - (positionY + 33.33f) / 66.67f) * mHeight));
         return tile;
     }
 }

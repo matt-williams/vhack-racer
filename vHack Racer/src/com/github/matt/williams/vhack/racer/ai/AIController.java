@@ -2,10 +2,10 @@ package com.github.matt.williams.vhack.racer.ai;
 
 import com.github.matt.williams.vhack.racer.game.ControllerCallback;
 import com.github.matt.williams.vhack.racer.game.Kart;
-import com.github.matt.williams.vhack.racer.game.Map;
 import com.github.matt.williams.vhack.racer.game.RaceState;
 
 import android.os.Handler;
+import android.util.FloatMath;
 import android.util.Log;
 
 public class AIController {
@@ -66,7 +66,7 @@ public class AIController {
         if (targetTile != null) {
             float[] targetPosition = mRaceState.getMap().getPosition(targetTile[0], targetTile[1]);
             float[] deltaPosition = new float[] {targetPosition[0] - position[0], targetPosition[1] - position[1]};
-            float distance = (float)Math.sqrt((deltaPosition[0] * deltaPosition[0]) + (deltaPosition[1] * deltaPosition[1]));
+            float distance = FloatMath.sqrt((deltaPosition[0] * deltaPosition[0]) + (deltaPosition[1] * deltaPosition[1]));
             float targetOrientation = (float)Math.atan2(-deltaPosition[0], deltaPosition[1]);
             targetOrientation = (targetOrientation < 0) ? (targetOrientation + (float)(2 * Math.PI)) : (targetOrientation > (float)(2 * Math.PI)) ? (targetOrientation - (float)(2 * Math.PI)): targetOrientation;
             float idealSteering = (targetOrientation - orientation) * 0.1f;
@@ -83,4 +83,4 @@ public class AIController {
         }
         mHandler.postDelayed(mRunnable, 100);
     }
-} 
+}

@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 
 import com.github.matt.williams.vhack.racer.R;
-import com.github.matt.williams.vhack.racer.game.Item;
 import com.github.matt.williams.vhack.racer.game.Kart;
 
 public class KartManager {
