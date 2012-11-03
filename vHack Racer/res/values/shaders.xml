@@ -1,13 +1,13 @@
 <resources>
 
 <string name="mapVertexShader"><![CDATA[
-attribute vec2 xz;
+attribute vec3 xyz;
 attribute vec2 uv;
 uniform mat4 matrix;
 varying highp vec2 uv2;
 
 void main() {
-  gl_Position = matrix * vec4(xz.x, -1.0, xz.y, 1);
+  gl_Position = matrix * vec4(xyz, 1);
   uv2 = uv;
 }
 ]]></string>
@@ -15,8 +15,8 @@ void main() {
 <string name="mapFragmentShader"><![CDATA[
 varying highp vec2 uv2;
 uniform sampler2D terrain;
-uniform sampler2D map;
 uniform highp vec2 terrainSize;
+uniform sampler2D map;
 uniform highp vec2 mapSize;
 
 void main() {
@@ -66,8 +66,11 @@ uniform mat4 rotationTranslation;
 uniform mat4 projection;
 uniform float orientation;
 varying highp vec2 uv2;
+uniform sampler2D xyzr;
+uniform sampler2D ;
 
 void main() {
+
   gl_Position = projection * (rotationTranslation * vec4(xzyr.x, xzyr.z, xzyr.y, 1) + vec4((uv.x * 2.0) - 1.0, 1.0 - (uv.y * 2.0), 0, 0));
   uv2 = vec2((uv.x + mod(floor((orientation - xzyr.w) * 12.0 / 6.283) + 6.0, 12.0)) / 12.0, uv.y);
 }

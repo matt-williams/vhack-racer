@@ -20,26 +20,20 @@ public class Terrain {
         mMapTexture = new Texture(mapBitmap);
         mMapProgram = new Program(new VertexShader(resources.getString(R.string.mapVertexShader)),
                                   new FragmentShader(resources.getString(R.string.mapFragmentShader)));
-        mTerrainTexture.use(GLES20.GL_TEXTURE0);
         mMapProgram.setUniform("terrain", 0);
         mMapProgram.setUniform("terrainSize", 1.0f/40, 1.0f/40);//Should be20.0f/mTerrainTexture.getWidth(), 20.0f/mTerrainTexture.getHeight()); but getWidth() and getHeight() return 1200!
-        mMapTexture.use(GLES20.GL_TEXTURE1);
         mMapProgram.setUniform("map", 1);
         mMapProgram.setUniform("mapSize", 1.0f/mMapTexture.getWidth(), 1.0f/mMapTexture.getHeight());
-
     }
 
     public void draw(float[] matrix) {
+        mMapProgram.use();
+        // TODO: Don't setVertexAttriib every frame
+        mMapProgram.setVertexAttrib("xyz", new float[] {-100, -1, -100, 100, -1, -100, -100, -1, 100, 100, -1, 100}, 3);
+        mMapProgram.setVertexAttrib("uv", new float[] {-1, -1, 2, -1, -1, 2, 2, 2}, 2);
         mMapProgram.setUniform("matrix", matrix);
         mTerrainTexture.use(GLES20.GL_TEXTURE0);
         mMapTexture.use(GLES20.GL_TEXTURE1);
-        mMapProgram.use();
-        mMapProgram.setVertexAttrib("xz", new float[] {-100, -100, 100, -100, -100, 100, 100, 100}, 2);
-        mMapProgram.setVertexAttrib("uv", new float[] {-1, -1, 2, -1, -1, 2, 2, 2}, 2);
-        mMapProgram.setUniform("terrain", 0);
-        mMapProgram.setUniform("terrainSize", 1.0f / 40, 1.0f / 40);//Should be20.0f/mTerrainTexture.getWidth(), 20.0f/mTerrainTexture.getHeight()); but getWidth() and getHeight() return 1200!
-        mMapProgram.setUniform("map", 1);
-        mMapProgram.setUniform("mapSize", 1.0f / mMapTexture.getWidth(), 1.0f / mMapTexture.getHeight());
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
         Utils.checkErrors("glDrawArrays");        
     }
