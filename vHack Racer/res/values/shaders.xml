@@ -49,14 +49,12 @@ void main() {
 <string name="pointVertexShader"><![CDATA[
 attribute vec2 xz;
 attribute vec2 uv;
-uniform mat4 matrix;
-uniform mat4 rotation;
+uniform mat4 rotationTranslation;
+uniform mat4 projection;
 varying highp vec2 uv2;
 
 void main() {
-  highp vec4 offset = rotation * vec4((uv.x * 2.0) - 1.0, 1.0 - (uv.y * 2.0), 0, 0);
-  highp vec4 point = vec4(xz.x, 0, xz.y, 1) + offset;
-  gl_Position = matrix * point;
+  gl_Position = projection * (rotationTranslation * vec4(xz.x, 0, xz.y, 1) + vec4((uv.x * 2.0) - 1.0, 1.0 - (uv.y * 2.0), 0, 0));
   uv2 = uv;
 }
 ]]></string>
@@ -64,15 +62,13 @@ void main() {
 <string name="tuxVertexShader"><![CDATA[
 attribute vec4 xzyr;
 attribute vec2 uv;
-uniform mat4 matrix;
-uniform mat4 rotation;
+uniform mat4 rotationTranslation;
+uniform mat4 projection;
 uniform float orientation;
 varying highp vec2 uv2;
 
 void main() {
-  highp vec4 offset = rotation * vec4((uv.x * 2.0) - 1.0, 1.0 - (uv.y * 2.0), 0, 0);
-  highp vec4 point = vec4(xzyr.x, xzyr.z, xzyr.y, 1) + offset;
-  gl_Position = matrix * point;
+  gl_Position = projection * (rotationTranslation * vec4(xzyr.x, xzyr.z, xzyr.y, 1) + vec4((uv.x * 2.0) - 1.0, 1.0 - (uv.y * 2.0), 0, 0));
   uv2 = vec2((uv.x + mod(floor((orientation - xzyr.w) * 12.0 / 6.283) + 6.0, 12.0)) / 12.0, uv.y);
 }
 ]]></string>
