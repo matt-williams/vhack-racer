@@ -1,0 +1,5 @@
+vHack Racer maps are designed in tiled (http://www.mapeditor.org/).
+
+Once you've installed tiled, load up one of the templates in the templates directory.  There are two layers - terrain and specials.  The terrain layer must only contain tiles from the terrain tileset - these form the ground texture.  The specials layer must only contain tiles from the specials layer - these specify items in the world, such as starting points and power-ups.
+
+Once you've created your map, save it, export it as JSON and then run tools/jsontopng.sh to convert your JSON file into a PNG.  The PNG file can then be copied to the vHack Racer/res/raw directory as a new map.

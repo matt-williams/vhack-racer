@@ -44,7 +44,7 @@ public class ItemManager {
         mTexture.use(GLES20.GL_TEXTURE0);
         mProgram.setUniform("rotationTranslation", camera.getRotationTranslationMatrix());
         mProgram.setUniform("projection", camera.getProjectionMatrix());
-        mProgram.setVertexAttrib("uv",  UV_COORDS,  2);
+        mProgram.setVertexAttrib("uv", UV_COORDS, 2);
         
         float[] points = new float[items.size() * 2];
         int pointIndex = 0;

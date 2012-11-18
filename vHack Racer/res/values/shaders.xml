@@ -66,8 +66,6 @@ uniform mat4 rotationTranslation;
 uniform mat4 projection;
 uniform float orientation;
 varying highp vec2 uv2;
-uniform sampler2D xyzr;
-uniform sampler2D ;
 
 void main() {
 

@@ -3,17 +3,23 @@ package com.github.matt.williams.vhack.racer.game;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.matt.williams.vhack.racer.R;
+import com.github.matt.williams.vhack.racer.utils.VerbatimBitmapOptions;
+
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 
 public class RaceState {
-
+    private static final String TAG = "RaceState";
     private Map mMap;
     private List<Kart> mKarts = new ArrayList<Kart>();
     private List<Item> mBananas;
     private List<Item> mTreasure;
 
-    public RaceState() {
-        Bitmap mapBitmap = Bitmap.createBitmap(MapData.DATA, 64, 64, Bitmap.Config.ARGB_8888);
+    public RaceState(Resources resources) {
+        Bitmap mapBitmap = BitmapFactory.decodeResource(resources, R.raw.map, VerbatimBitmapOptions.INSTANCE);
         mMap = new Map(mapBitmap);
         
         mBananas = new ArrayList<Item>();

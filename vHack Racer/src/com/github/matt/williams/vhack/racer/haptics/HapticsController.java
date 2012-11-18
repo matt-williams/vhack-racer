@@ -25,12 +25,16 @@ public class HapticsController {
                 }
             } else {
                 float speed = mKart.getSpeed();
+                /* Tone down haptics...
+                 * TODO: Consider what the right level is.
                 if (speed <= 0.1) {
                 	mLauncher.play(Launcher.ENGINE1_33);
                 } else if (speed <= 0.2) {
                 	mLauncher.play(Launcher.ENGINE1_66);
-                } else if (speed > 0.2) {
-                	mLauncher.play(Launcher.ENGINE1_100);
+                } else
+                    */
+                if (speed > 0.2) {
+                	mLauncher.play(Launcher.ENGINE1_33);
                 }
             }
             mHandler.postDelayed(mHapticsHandler, 100);

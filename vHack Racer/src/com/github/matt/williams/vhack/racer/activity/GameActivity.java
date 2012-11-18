@@ -90,7 +90,7 @@ public class GameActivity extends Activity implements ConnectionCallback, EventR
             mAlert = new AlertDialog.Builder(this);
             mHighScoreInput = new EditText(this);
 
-            mRaceState = new RaceState();
+            mRaceState = new RaceState(getResources());
             Kart kart = mRaceState.addKart("Alice", 19.8f, -23.9f);
             new AIController(mRaceState, kart, kart).start(); // TODO: Do this properly, and stop it.
             kart = mRaceState.addKart("Bob", 21.875f, -28.1f);

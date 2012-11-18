@@ -13,7 +13,8 @@ public class GameLoop implements Runnable {
     }
     
     public void start() {
-        mHandler.postDelayed(this, UPDATE_PERIOD);
+        // TODO Sort out synchronization of start processing
+        mHandler.postDelayed(this, 2000);
     }
     
     public void run() {

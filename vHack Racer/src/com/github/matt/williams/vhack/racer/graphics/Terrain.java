@@ -7,6 +7,7 @@ import android.opengl.GLES20;
 
 import com.github.matt.williams.vhack.racer.R;
 import com.github.matt.williams.vhack.racer.game.MapData;
+import com.github.matt.williams.vhack.racer.utils.VerbatimBitmapOptions;
 
 public class Terrain {
     private Texture mTerrainTexture;
@@ -15,8 +16,7 @@ public class Terrain {
 
     public Terrain(Resources resources) {
         mTerrainTexture = new Texture(BitmapFactory.decodeResource(resources, R.drawable.terrain));
-//      Bitmap mapBitmap = BitmapFactory.decodeStream(resources.openRawResource(R.raw.map));
-        Bitmap mapBitmap = Bitmap.createBitmap(MapData.DATA, 64, 64, Bitmap.Config.ARGB_8888);
+        Bitmap mapBitmap = BitmapFactory.decodeResource(resources, R.raw.map, VerbatimBitmapOptions.INSTANCE);
         mMapTexture = new Texture(mapBitmap);
         mMapProgram = new Program(new VertexShader(resources.getString(R.string.mapVertexShader)),
                                   new FragmentShader(resources.getString(R.string.mapFragmentShader)));

@@ -93,8 +93,8 @@ public class Kart implements ControllerCallback {
                     mLapCount++;
                     if (mLapListener != null) {
                         mLapListener.onLap(mLapCount);
-                        if (mLapCount == Map.TOTAL_LAPS) {
-                            mLapListener.onRaceComplete();                            
+                        if (mLapCount == Map.TOTAL_LAPS + 1) {
+                            mLapListener.onRaceComplete(); 
                         }
                     }
                     mLapCooldown = 1000;
